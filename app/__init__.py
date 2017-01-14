@@ -410,8 +410,11 @@ def as_timezone(dt, tzname):
     """Accepts a Time aware Datetime object and a Timezone name.
         Returns Converted Timezone aware Datetime Object.
         """
-    converted_dt = dt.astimezone(timezone(tzname))
-    return converted_dt
+    if tzname is not None:
+        converted_dt = dt.astimezone(timezone(tzname))
+        return converted_dt
+    else:
+        return dt
 
 
 @app.template_filter('fees_by_currency')

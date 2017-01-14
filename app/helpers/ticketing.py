@@ -304,7 +304,12 @@ class TicketingManager(object):
 
             else:
                 order.status = 'completed'
+                invoice_id = order.get_invoice_number()
+                order_url = url_for('ticketing.view_order_after_payment',
+                                    order_identifier=order.identifier,
+                                    _external=True)
                 order.completed_at = datetime.utcnow()
+                send_email_for_after_purchase(email, invoice_id, order_url, order.event.name, order.event.organizer_name)
                 if not order.paid_via:
                     order.paid_via = 'free'
 
@@ -323,6 +328,8 @@ class TicketingManager(object):
                                              lastname=data['lastname'],
                                              ticket_id=int(holders_ticket_ids[i]),
                                              email=holder_user.email, order_id=order.id)
+                if order.status == "completed":
+                    send_email_for_after_purchase(holder_user.email, invoice_id, order_url, order.event.name, order.event.organizer_name)
                 DataManager.add_attendee_role_to_event(holder_user, order.event_id)
                 db.session.add(ticket_holder)
 
@@ -358,7 +365,7 @@ class TicketingManager(object):
                                 order_identifier=order.identifier,
                                 _external=True)
 
-            send_email_for_after_purchase(order.user.email, invoice_id, order_url)
+            send_email_for_after_purchase(order.user.email, invoice_id, order_url, order.event.name, order.event.organizer_name)
             send_notif_for_after_purchase(order.user, invoice_id, order_url)
 
             return True, order
@@ -382,7 +389,7 @@ class TicketingManager(object):
                                     order_identifier=order.identifier,
                                     _external=True)
 
-                send_email_for_after_purchase(order.user.email, invoice_id, order_url)
+                send_email_for_after_purchase(order.user.email, invoice_id, order_url, order.event.name, order.event.organizer_name)
                 send_notif_for_after_purchase(order.user, invoice_id, order_url)
 
                 return True, order
