@@ -39,7 +39,7 @@ from app.models.session import Session
 from helpers.jwt import jwt_authenticate, jwt_identity
 from helpers.formatter import operation_name
 from app.helpers.data_getter import DataGetter
-from app.api.helpers.errors import NotFoundError, PermissionDeniedError, ServerError, ValidationError
+from app.helpers.flask_ext.errors import NotFoundError, PermissionDeniedError, ServerError, ValidationError
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.helpers.data import DataManager, delete_from_db
 from app.helpers.helpers import send_after_event
@@ -189,7 +189,6 @@ def update_sent_state(sender=None, body=None, **kwargs):
 
 # register celery tasks. removing them will cause the tasks to not function. so don't remove them
 # it is important to register them after celery is defined to resolve circular imports
-import api.helpers.tasks
 import helpers.tasks
 
 
