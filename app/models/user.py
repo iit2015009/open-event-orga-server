@@ -43,7 +43,7 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    email = db.Column(db.String(120), unique=True)
+    _email = db.Column(db.String(120), unique=True)
     _password = db.Column(db.String(128))
     reset_password = db.Column(db.String(128))
     salt = db.Column(db.String(128))
@@ -70,25 +70,22 @@ class User(db.Model):
     deleted_at = db.Column(db.DateTime)
 
     @hybrid_property
-    def password(self):
+    def email(self):
         """
-        Hybrid property for password
+        Hybrid property for email
         :return:
         """
-        return self._password
+        return self._email
 
-    @password.setter
-    def password(self, password):
+    @email.setter
+    def email(self, email):
         """
-        Setter for _password, saves hashed password, salt and reset_password string
-        :param password:
+        Setter for _email, can be only set once
+        :param email:
         :return:
         """
-        salt = generate_random_salt()
-        self._password = generate_password_hash(password, salt)
-        hash_ = random.getrandbits(128)
-        self.reset_password = str(hash_)
-        self.salt = salt
+        self._email = email
+
 
     # User Permissions
     def can_publish_event(self):
