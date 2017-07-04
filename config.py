@@ -55,8 +55,9 @@ class Config(object):
     SERVE_STATIC = env.bool('SERVE_STATIC', default=False)
     DATABASE_QUERY_TIMEOUT = 0.1
     SOFT_DELETE = True
-    PROPOGATE_ERROR = False
+    PROPOGATE_ERROR = True
     DASHERIZE_API = True
+    ETAG = True
 
     if not SQLALCHEMY_DATABASE_URI:
         print('`DATABASE_URL` either not exported or empty')
@@ -124,3 +125,4 @@ class TestingConfig(Config):
     BROKER_BACKEND = 'memory'
     SQLALCHEMY_DATABASE_URI = env('TEST_DATABASE_URL', default=None)
     PROPOGATE_ERROR = True
+
