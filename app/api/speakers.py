@@ -10,6 +10,7 @@ from app.models.session import Session
 from app.models.user import User
 from app.models.event import Event
 from app.api.helpers.db import safe_query
+from app.api.bootstrap import api
 
 
 class SpeakerSchema(Schema):
@@ -124,7 +125,8 @@ class SpeakerList(ResourceList):
         data['user_id'] = current_identity.id
 
     view_kwargs = True
-    decorators = (jwt_required,)
+    decorators = (api.has_permission('is_coorganizer', fetch='event_id', fetch_as="event_id", methods="POST",
+                                     check=lambda a: a.get('event_id') or a.get('event_identifier')),)
     schema = SpeakerSchema
     data_layer = {'session': db.session,
                   'model': Speaker,
@@ -139,7 +141,8 @@ class SpeakerDetail(ResourceDetail):
     """
     Speakers Detail by id
     """
-    decorators = (jwt_required,)
+    decorators = (api.has_permission('is_coorganizer', methods="PATCH,DELETE", fetch="event_id", fetch_as="event_id",
+                                     model=Speaker, check=lambda a: a.get('id') is not None),)
     schema = SpeakerSchema
     data_layer = {'session': db.session,
                   'model': Speaker}
