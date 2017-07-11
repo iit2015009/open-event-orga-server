@@ -23,6 +23,8 @@ env:
 before_script:
   - psql -c 'create database test;' -U postgres
   - export DATABASE_URL=postgresql://postgres@localhost:5432/abc
+  - python manage.py db downgrade
+  - python manage.py db upgrade
   - export TEST_DATABASE_URL=postgresql://postgres@localhost:5432/test
   - dredd
 script:
