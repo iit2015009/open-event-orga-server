@@ -62,6 +62,20 @@ def is_coorganizer(view, view_args, view_kwargs, *args, **kwargs):
     return ForbiddenError({'source': ''}, 'Co-organizer access is required.').respond()
 
 
+def is_coorganizer_without_jwt_required(view, view_args, view_kwargs, *args, **kwargs):
+    if 'Authorization' in request.headers:
+        _jwt_required(app.config['JWT_DEFAULT_REALM'])
+        user = current_identity
+
+        if user.is_staff:
+            return view(*view_args, **view_kwargs)
+
+        if user.is_organizer(kwargs['event_id']) or user.is_coorganizer(kwargs['event_id']):
+            return view(*view_args, **view_kwargs)
+
+    return ForbiddenError({'source': ''}, 'Co-organizer access is required.').respond()
+
+
 @jwt_required
 def is_user_itself(view, view_args, view_kwargs, *args, **kwargs):
     """
@@ -184,7 +198,8 @@ permissions = {
     'auth_required': auth_required,
     'is_coorganizer_or_user_itself': is_coorganizer_or_user_itself,
     'create_event': create_event,
-    'is_user_itself': is_user_itself
+    'is_user_itself': is_user_itself,
+    'is_coorganizer_without_jwt_required': is_coorganizer_without_jwt_required
 }
 
 
@@ -282,7 +297,7 @@ def permission_manager(view, view_args, view_kwargs, *args, **kwargs):
                     break
 
             if not found:
-                return NotFoundError({'source': ''}, 'Object not found.~~').respond()
+                return NotFoundError({'source': ''}, 'Object not found.').respond()
 
             fetched = None
             if is_multiple(fetch):
@@ -296,7 +311,7 @@ def permission_manager(view, view_args, view_kwargs, *args, **kwargs):
         if fetched:
             kwargs[kwargs['fetch_as']] = fetched
         else:
-            return NotFoundError({'source': ''}, 'Object not found.~').respond()
+            return NotFoundError({'source': ''}, 'Object not found.').respond()
 
     if args[0] in permissions:
         return permissions[args[0]](view, view_args, view_kwargs, *args, **kwargs)
